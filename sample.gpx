@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx version="1.1" creator="YourAppName"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 
+                         http://www.topografix.com/GPX/1/1/gpx.xsd">
+
+   <wpt lat="50.0875936" lon="14.4531800">
+       <ele>35.0</ele>
+       <name>Eiffel Tower</name>
+       <desc>A famous landmark in Paris, France.</desc>
+       <sym>Attraction</sym>
+       <type>Landmark</type>
+       <link href="https://www.vodnimlyny.cz/upload/media/10596/140709.png?v=2021-07-20-00-23">
+           <text>Image of Eiffel Tower</text>
+       </link>       
+   </wpt>
+</gpx>
