@@ -15,11 +15,11 @@ dataset_disable_cache = False
 result_filename = 'final.gpx'
 
 # maximalni pocet polozek v GPX
-result_limit_items = 1000
+result_limit_items = 99000
 
 # minimalni vzdalenosti od ruznych bodu
 minimal_distances = [
-    ("Prague", 50.0755, 14.4378, 200),
+    ("Prague", 50.0755, 14.4378, 150),
     #("Neco", 50.0755, 14.4378, 50),
 ]
 
