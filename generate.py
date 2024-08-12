@@ -27,6 +27,9 @@ minimal_distances = [
     #("Neco", 50.0755, 14.4378, 50),
 ]
 
+# pridat odkaz na detail do nadpisu
+add_href_to_caption = True
+
 
 def log_msg(msg):
     print("(gpx exporter) " + msg)
@@ -118,7 +121,7 @@ def prepare_items():
                 "is_valid": is_valid,
                 "min_dist": min_dist,
                 "id": c["id"],
-                "caption": str(c["name"]) + " #" + str(c["id"]),
+                "caption": " #" + str(c["id"]) + ": " + str(c["name"]),
                 "name": str(c["name"]),
                 "icon": None,
                 "links": []
@@ -129,8 +132,13 @@ def prepare_items():
             if idx != 1:
                 it["icon"] = c["icon"][idx+1:].strip()
 
-            it["links"].append( ( "https://www.vodnimlyny.cz/en/?do=estateInfo&estateId=" + str(c["id"]), str(c["name"]) ) )
+            detail_href = "https://www.vodnimlyny.cz/en/?do=estateInfo&estateId=" + str(c["id"])
+
+            it["links"].append( ( detail_href, str(c["name"]) ) )
             it["links"].append( ( "https://www.vodnimlyny.cz/" + str(c["icon"]), "Image of " + str(c["name"]) ) )
+
+            if add_href_to_caption:
+                it["caption"] += ", " + detail_href
 
             if result_valid_icons is not None and it["icon"] not in result_valid_icons:
                 is_valid = False
