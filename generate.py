@@ -30,6 +30,9 @@ minimal_distances = [
 # pridat odkaz na detail do nadpisu
 add_href_to_caption = True
 
+# hezke xml
+result_pretty_print = True
+
 
 def log_msg(msg):
     print("(gpx exporter) " + msg)
@@ -42,7 +45,7 @@ def get_dataset():
     if not dataset_disable_cache and os.path.isfile(dataset_name):
         with open(dataset_name, 'rb') as f:
             bts = f.read()
-            dataset_str = bts.decode('ascii')
+            dataset_str = bts.decode('utf8')
 
             log_msg("Cached dataset `" + str(dataset_name) + "` loaded ...")
         
@@ -180,9 +183,22 @@ def main():
         if len(list(gpx)) >= result_limit_items:
             break
 
-    bxml.ElementTree(gpx).write(result_filename)
+    if result_pretty_print:
+        import xml.dom.minidom
 
-    log_msg("File `" + result_filename + "` created with `" + str(len(list(gpx))) + "` items!")
+        xst = bxml.tostring(gpx, 'utf8').decode('utf8')
+        dom = xml.dom.minidom.parseString(xst)
+        cnt = dom.toprettyxml(indent="  ")
+
+        with open(result_filename, 'w') as f:
+            f.write(cnt)
+
+        log_msg("Pretty-printed file `" + result_filename + "` created with `" + str(len(list(gpx))) + "` items!")
+
+    else:
+        bxml.ElementTree(gpx).write(result_filename)
+
+        log_msg("File `" + result_filename + "` created with `" + str(len(list(gpx))) + "` items!")
 
 
 if __name__ == '__main__':
