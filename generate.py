@@ -17,11 +17,19 @@ result_filename = 'final.gpx'
 # maximalni pocet polozek v GPX
 result_limit_items = 99000
 
+# povolene validni ikony
+#result_valid_icons = None
+result_valid_icons = ["1.png"]
+
 # minimalni vzdalenosti od ruznych bodu
 minimal_distances = [
     ("Prague", 50.0755, 14.4378, 150),
     #("Neco", 50.0755, 14.4378, 50),
 ]
+
+
+def log_msg(msg):
+    print("(gpx exporter) " + msg)
 
 
 def get_dataset():
@@ -32,6 +40,8 @@ def get_dataset():
         with open(dataset_name, 'rb') as f:
             bts = f.read()
             dataset_str = bts.decode('ascii')
+
+            log_msg("Cached dataset `" + str(dataset_name) + "` loaded ...")
         
     else:
         s = requests.Session()
@@ -42,6 +52,7 @@ def get_dataset():
             raise 'Invalid response code `' + str(req.status_code) + '` from `' + dataset_whole_url + '`'
         else:
             dataset_str = req.content
+            log_msg("Dataset loaded from `" + dataset_whole_url + "` ...")
 
             if not dataset_disable_cache:
                 with open(dataset_name, 'wb') as f:
@@ -75,10 +86,17 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 def prepare_items():
+
+    dataset = get_dataset()
+
+    log_msg("Preparing POI items ...")
+
     items = []
+    total_items = 0
 
-    for c in get_dataset():
+    for c in dataset:
 
+        total_items += 1
         min_dist = -1
         is_valid = False
         lat = float(c["lat"])
@@ -102,13 +120,25 @@ def prepare_items():
                 "id": c["id"],
                 "caption": str(c["name"]) + " #" + str(c["id"]),
                 "name": str(c["name"]),
+                "icon": None,
                 "links": []
             }
+
+            idx = c["icon"].rfind('/')
+
+            if idx != 1:
+                it["icon"] = c["icon"][idx+1:].strip()
 
             it["links"].append( ( "https://www.vodnimlyny.cz/en/?do=estateInfo&estateId=" + str(c["id"]), str(c["name"]) ) )
             it["links"].append( ( "https://www.vodnimlyny.cz/" + str(c["icon"]), "Image of " + str(c["name"]) ) )
 
+            if result_valid_icons is not None and it["icon"] not in result_valid_icons:
+                is_valid = False
+
+        if is_valid:
             bisect.insort(items, it, key=lambda x: x["min_dist"])
+
+    log_msg("POI items prepared - found " + str(len(items)) + " of total " + str(total_items) + " iterated items ...")
 
     return items
 
@@ -116,6 +146,8 @@ def prepare_items():
 def main():
 
     items = prepare_items()
+
+    log_msg("Generating final GPX xml to `" + result_filename + "`")
 
     xmlns_uris = {
         'xmlns': 'http://www.topografix.com/GPX/1/1',
@@ -141,6 +173,8 @@ def main():
             break
 
     bxml.ElementTree(gpx).write(result_filename)
+
+    log_msg("File `" + result_filename + "` created with `" + str(len(list(gpx))) + "` items!")
 
 
 if __name__ == '__main__':
